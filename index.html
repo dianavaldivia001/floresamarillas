@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Flores Amarillas Especiales Para Ti 💛</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Dancing+Script:wght@700&family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            padding-top: env(safe-area-inset-top, 0px);
+            padding-bottom: env(safe-area-inset-bottom, 0px);
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 35%, #fde68a 70%, #fbcfe8 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .font-handwriting {
+            font-family: 'Dancing Script', cursive;
+        }
+
+        .font-note {
+            font-family: 'Caveat', cursive;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+        }
+
+        .glass-modal {
+            background: rgba(255, 253, 245, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 2px solid rgba(251, 191, 36, 0.5);
+        }
+
+        /* Floating background petals */
+        .bg-petals {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .petal {
+            position: absolute;
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+            border-radius: 150% 0 150% 0;
+            opacity: 0.35;
+            animation: floatPetal 11s infinite linear;
+        }
+
+        @keyframes floatPetal {
+            0% {
+                transform: translateY(-10vh) rotate(0deg) scale(0.8);
+                opacity: 0;
+            }
+            15% { opacity: 0.4; }
+            85% { opacity: 0.4; }
+            100% {
+                transform: translateY(105vh) rotate(360deg) scale(1.2);
+                opacity: 0;
+            }
+        }
+
+        /* Interactive Flower Glows */
+        .flower-item {
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .flower-item:hover {
+            transform: scale(1.08) translateY(-5px);
+            filter: drop-shadow(0 12px 16px rgba(245, 158, 11, 0.5));
+        }
+
+        .flower-item.unlocked {
+            filter: drop-shadow(0 0 14px rgba(251, 191, 36, 0.9)) drop-shadow(0 0 22px rgba(245, 158, 11, 0.6));
+            animation: flowerPulse 3s infinite ease-in-out;
+        }
+
+        @keyframes flowerPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.04); }
+        }
+
+        /* Ticket Border Effect */
+        .ticket-dashed {
+            background-image: repeating-linear-gradient(0deg, #f59e0b, #f59e0b 10px, transparent 10px, transparent 20px), repeating-linear-gradient(90deg, #f59e0b, #f59e0b 10px, transparent 10px, transparent 20px), repeating-linear-gradient(180deg, #f59e0b, #f59e0b 10px, transparent 10px, transparent 20px), repeating-linear-gradient(270deg, #f59e0b, #f59e0b 10px, transparent 10px, transparent 20px);
+            background-size: 2px 100%, 100% 2px, 2px 100%, 100% 2px;
+            background-position: 0 0, 0 0, 100% 0, 0 100%;
+            background-repeat: no-repeat;
+        }
+    </style>
+</head>
+<body class="relative flex flex-col justify-between">
+
+    <div id="petalsBg" class="bg-petals"></div>
+
+    <!-- Header Navigation & Controls -->
+    <header class="relative z-20 w-full p-4 max-w-4xl mx-auto flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+            <span class="text-3xl animate-bounce">🌻</span>
+            <div>
+                <h1 class="text-xl md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-600 via-yellow-600 to-pink-600 font-handwriting">
+                    Flores Amarillas
+                </h1>
+                <p class="text-xs text-amber-800 font-semibold">Un regalo hecho con todo mi amor</p>
+            </div>
+        </div>
+
+        <button id="bgmToggle" class="glass-card px-4 py-2 rounded-full flex items-center space-x-2 border border-amber-300 text-amber-900 hover:bg-amber-100/80 transition-all shadow-sm active:scale-95">
+            <i id="bgmIcon" class="fas fa-music text-amber-500"></i>
+            <span id="bgmText" class="text-xs font-bold">Música: OFF</span>
+        </button>
+    </header>
+
+    <main class="relative z-10 w-full max-w-4xl mx-auto px-4 py-2 flex-grow flex flex-col justify-center items-center">
+
+        <!-- PASO 1: MINIJUEGO CATCH THE FLOWERS -->
+        <section id="gamePhase" class="w-full glass-card rounded-3xl p-4 md:p-6 shadow-2xl border-2 border-amber-200 transition-all duration-700">
+            <div class="text-center mb-3">
+                <span class="inline-block bg-amber-100 text-amber-800 text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider mb-1 border border-amber-300">
+                    Paso 1: Cosechando Tus Flores 💛
+                </span>
+                <h2 class="text-2xl md:text-3xl font-bold text-slate-800 font-handwriting">
+                    Atrapa 10 flores amarillas para armar tu ramo
+                </h2>
+                <p class="text-xs text-slate-600 mt-1">
+                    Mueve la canastilla usando el <b>mouse</b>, <b>pantalla táctil</b> o las <b>flechas del teclado</b>.
+                </p>
+            </div>
+
+            <!-- Scoreboard -->
+            <div class="flex justify-between items-center bg-amber-50/90 rounded-2xl p-3 mb-3 border border-amber-200 shadow-inner">
+                <div class="flex items-center space-x-2">
+                    <span class="text-2xl">🧺</span>
+                    <div>
+                        <div class="text-xs text-slate-500 font-bold uppercase">Recolectadas</div>
+                        <div class="text-sm font-black text-amber-600"><span id="flowerScore">0</span> / 10 Flores</div>
+                    </div>
+                </div>
+
+                <div id="gameMessage" class="hidden text-xs md:text-sm font-bold text-pink-600 bg-pink-100 px-3 py-1 rounded-full border border-pink-300 animate-pulse text-center">
+                    ¡Pensamiento atrapado! 💕
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <span class="text-2xl">✨</span>
+                    <div>
+                        <div class="text-xs text-slate-500 font-bold uppercase">Magia</div>
+                        <div class="text-sm font-black text-pink-500"><span id="sparkleScore">0</span> Puntos</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Canvas -->
+            <div class="relative w-full aspect-[4/3] md:aspect-[16/9] bg-gradient-to-b from-sky-100 via-amber-50 to-pink-50 rounded-2xl overflow-hidden border-2 border-amber-300 shadow-md">
+                <canvas id="gameCanvas" class="w-full h-full block cursor-none"></canvas>
+
+                <!-- Start overlay -->
+                <div id="gameOverlay" class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm flex flex-col justify-center items-center p-6 text-center text-white transition-opacity duration-300">
+                    <div class="w-16 h-16 bg-amber-400 rounded-full flex items-center justify-center text-3xl shadow-lg mb-3 animate-bounce">
+                        🌻
+                    </div>
+                    <h3 class="text-2xl md:text-3xl font-bold font-handwriting mb-2">¿Lista para recibir tu regalo?</h3>
+                    <p class="text-xs md:text-sm text-amber-100 mb-5 max-w-md">
+                        Cada flor que caiga tiene preparado un verso dulce e inolvidable para ti.
+                    </p>
+                    <button id="startGameBtn" class="bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-900 font-extrabold text-base px-8 py-3 rounded-full shadow-lg transform hover:scale-105 active:scale-95 transition-all flex items-center space-x-2">
+                        <i class="fas fa-play"></i>
+                        <span>Empezar a Jugar</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="text-center mt-3 text-xs text-slate-500 md:hidden">
+                👆 Toca y arrastra el dedo en la pantalla para mover la canastilla
+            </div>
+        </section>
+
+        <!-- PASO 2 Y 3: RAMO INTERACTIVO Y POEMAS -->
+        <section id="revealPhase" class="hidden w-full glass-card rounded-3xl p-4 md:p-8 shadow-2xl border-2 border-amber-300 transition-all duration-700 text-center">
+            
+            <div class="inline-block bg-amber-100 text-amber-800 text-xs px-4 py-1.5 rounded-full font-bold uppercase tracking-wider mb-2 border border-amber-300">
+                Paso 2: Ramo de Poemas 💐
+            </div>
+
+            <h2 class="text-2xl md:text-4xl font-extrabold text-amber-900 font-handwriting mb-1">
+                ¡Has conseguido todas tus Flores Amarillas!
+            </h2>
+            <p class="text-xs md:text-sm text-slate-600 mb-4 max-w-lg mx-auto">
+                Toca cada una de las <b>7 flores del ramo</b> para revelar el verso y el poema que guarda en sus pétalos 💛
+            </p>
+
+            <!-- Counter for unlocked poems -->
+            <div class="inline-flex items-center space-x-2 bg-amber-50 px-4 py-2 rounded-full border border-amber-300 mb-6 shadow-sm">
+                <span class="text-amber-500 text-lg">✨</span>
+                <span id="unlockedCounterText" class="text-xs md:text-sm font-bold text-amber-900">
+                    0 de 7 poemas descubiertos
+                </span>
+            </div>
+
+            <!-- SVG BOUQUET WITH CLICKABLE FLOWERS -->
+            <div class="relative max-w-md mx-auto aspect-square bg-gradient-to-b from-amber-50/50 via-white/80 to-amber-100/60 rounded-3xl p-4 border border-amber-200/80 shadow-inner flex justify-center items-center overflow-hidden mb-6">
+
+                <svg viewBox="0 0 500 500" class="w-full h-full drop-shadow-xl">
+                    <defs>
+                        <linearGradient id="stemGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#34d399"/>
+                            <stop offset="100%" stop-color="#047857"/>
+                        </linearGradient>
+                        <linearGradient id="petalYellow" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#fef3c7"/>
+                            <stop offset="55%" stop-color="#fbbf24"/>
+                            <stop offset="100%" stop-color="#d97706"/>
+                        </linearGradient>
+                        <linearGradient id="petalGold" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#fde68a"/>
+                            <stop offset="100%" stop-color="#ca8a04"/>
+                        </linearGradient>
+                        <radialGradient id="centerBrown" cx="35%" cy="30%" r="70%">
+                            <stop offset="0%" stop-color="#92400e"/>
+                            <stop offset="100%" stop-color="#451a03"/>
+                        </radialGradient>
+                        <linearGradient id="tulipGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#fde047"/>
+                            <stop offset="100%" stop-color="#d97706"/>
+                        </linearGradient>
+                        <linearGradient id="ribbonGrad" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="#fbcfe8"/>
+                            <stop offset="100%" stop-color="#f472b6"/>
+                        </linearGradient>
+                    </defs>
+
+                    <!-- Tallos agrupados -->
+                    <g stroke="url(#stemGrad)" stroke-width="6" fill="none" stroke-linecap="round" opacity="0.95">
+                        <path d="M250,225 C246,280 250,315 250,338"/>
+                        <path d="M170,160 C188,235 218,295 244,335"/>
+                        <path d="M330,160 C312,235 282,295 256,335"/>
+                        <path d="M130,258 C158,300 198,325 244,340"/>
+                        <path d="M370,258 C342,300 302,325 256,340"/>
+                        <path d="M200,300 C214,320 232,332 247,342"/>
+                        <path d="M300,300 C286,320 268,332 253,342"/>
+                    </g>
+
+                    <!-- Envoltura de papel -->
+                    <path d="M178,338 C220,308 280,308 322,338 L282,478 C252,490 228,490 218,478 Z" fill="#fffbeb" stroke="#fcd34d" stroke-width="2.5" opacity="0.95"/>
+                    <path d="M178,338 C220,308 280,308 322,338 L282,478 C252,490 228,490 218,478 Z" fill="url(#ribbonGrad)" opacity="0.12"/>
+                    <path d="M195,350 L250,335 L305,350 L282,478 C252,490 228,490 218,478 Z" fill="none" stroke="#fbbf24" stroke-width="1" opacity="0.4"/>
+
+                    <!-- Lazo del listón -->
+                    <path d="M205,336 C225,318 275,318 295,336 C300,346 300,352 295,357 C275,341 225,341 205,357 C200,352 200,346 205,336 Z" fill="url(#ribbonGrad)" stroke="#db2777" stroke-width="2"/>
+                    <path d="M180,344 L215,338 L222,362 L192,376 Z" fill="#f9a8d4" stroke="#ec4899" stroke-width="1.5"/>
+                    <path d="M320,344 L285,338 L278,362 L308,376 Z" fill="#f9a8d4" stroke="#ec4899" stroke-width="1.5"/>
+                    <circle cx="250" cy="344" r="9" fill="#db2777"/>
+
+                    <!-- Hojas de fondo -->
+                    <path d="M140,260 Q90,200 130,160 Q170,200 140,260 Z" fill="#10b981" opacity="0.85"/>
+                    <path d="M360,260 Q410,200 370,160 Q330,200 360,260 Z" fill="#10b981" opacity="0.85"/>
+                    <path d="M250,180 Q200,100 250,80 Q300,100 250,180 Z" fill="#059669" opacity="0.8"/>
+                    <path d="M180,220 Q120,130 180,110 Q220,150 180,220 Z" fill="#10b981" opacity="0.7"/>
+                    <path d="M320,220 Q380,130 320,110 Q280,150 320,220 Z" fill="#10b981" opacity="0.7"/>
+
+                    <!-- Flor 1: Girasol central -->
+                    <g transform="translate(250,190)">
+                    <g class="flower-item" data-id="1">
+                        <g fill="url(#petalYellow)">
+                            <ellipse cx="0" cy="-52" rx="13" ry="26"/>
+                            <ellipse cx="36" cy="-36" rx="13" ry="26" transform="rotate(45)"/>
+                            <ellipse cx="52" cy="0" rx="13" ry="26" transform="rotate(90)"/>
+                            <ellipse cx="36" cy="36" rx="13" ry="26" transform="rotate(135)"/>
+                            <ellipse cx="0" cy="52" rx="13" ry="26" transform="rotate(180)"/>
+                            <ellipse cx="-36" cy="36" rx="13" ry="26" transform="rotate(225)"/>
+                            <ellipse cx="-52" cy="0" rx="13" ry="26" transform="rotate(270)"/>
+                            <ellipse cx="-36" cy="-36" rx="13" ry="26" transform="rotate(315)"/>
+                        </g>
+                        <g fill="url(#petalGold)" opacity="0.95">
+                            <ellipse cx="0" cy="-38" rx="10" ry="19" transform="rotate(22.5)"/>
+                            <ellipse cx="0" cy="-38" rx="10" ry="19" transform="rotate(67.5)"/>
+                            <ellipse cx="0" cy="-38" rx="10" ry="19" transform="rotate(112.5)"/>
+                            <ellipse cx="0" cy="-38" rx="10" ry="19" transform="rotate(157.5)"/>
+                            <ellipse cx="0" cy="-38" rx="10" ry="19" transform="rotate(202.5)"/>
+                            <ellipse cx="0" cy="-38" rx="10" ry="19" transform="rotate(247.5)"/>
+                            <ellipse cx="0" cy="-38" rx="10" ry="19" transform="rotate(292.5)"/>
+                            <ellipse cx="0" cy="-38" rx="10" ry="19" transform="rotate(337.5)"/>
+                        </g>
+                        <circle cx="0" cy="0" r="26" fill="url(#centerBrown)"/>
+                        <g fill="#78350f" opacity="0.6">
+                            <circle cx="0" cy="0" r="2"/>
+                            <circle cx="8" cy="-4" r="2"/>
+                            <circle cx="-8" cy="6" r="2"/>
+                            <circle cx="12" cy="8" r="2"/>
+                            <circle cx="-10" cy="-8" r="2"/>
+                            <circle cx="0" cy="14" r="2"/>
+                            <circle cx="16" cy="0" r="2"/>
+                            <circle cx="-16" cy="2" r="2"/>
+                        </g>
+                    </g>
+                    </g>
+
+                    <!-- Flor 2: Rosa amarilla (arriba izquierda) -->
+                    <g transform="translate(170,130)">
+                    <g class="flower-item" data-id="2">
+                        <path d="M-14,26 Q0,14 14,26 Q0,38 -14,26 Z" fill="#059669" opacity="0.7"/>
+                        <g fill="url(#petalGold)">
+                            <path d="M0,0 C-15,-8 -20,-28 0,-42 C20,-28 15,-8 0,0 Z" transform="rotate(0)"/>
+                            <path d="M0,0 C-15,-8 -20,-28 0,-42 C20,-28 15,-8 0,0 Z" transform="rotate(60)"/>
+                            <path d="M0,0 C-15,-8 -20,-28 0,-42 C20,-28 15,-8 0,0 Z" transform="rotate(120)"/>
+                            <path d="M0,0 C-15,-8 -20,-28 0,-42 C20,-28 15,-8 0,0 Z" transform="rotate(180)"/>
+                            <path d="M0,0 C-15,-8 -20,-28 0,-42 C20,-28 15,-8 0,0 Z" transform="rotate(240)"/>
+                            <path d="M0,0 C-15,-8 -20,-28 0,-42 C20,-28 15,-8 0,0 Z" transform="rotate(300)"/>
+                        </g>
+                        <g fill="url(#petalYellow)">
+                            <path d="M0,0 C-10,-6 -13,-20 0,-30 C13,-20 10,-6 0,0 Z" transform="rotate(30)"/>
+                            <path d="M0,0 C-10,-6 -13,-20 0,-30 C13,-20 10,-6 0,0 Z" transform="rotate(90)"/>
+                            <path d="M0,0 C-10,-6 -13,-20 0,-30 C13,-20 10,-6 0,0 Z" transform="rotate(150)"/>
+                            <path d="M0,0 C-10,-6 -13,-20 0,-30 C13,-20 10,-6 0,0 Z" transform="rotate(210)"/>
+                            <path d="M0,0 C-10,-6 -13,-20 0,-30 C13,-20 10,-6 0,0 Z" transform="rotate(270)"/>
+                            <path d="M0,0 C-10,-6 -13,-20 0,-30 C13,-20 10,-6 0,0 Z" transform="rotate(330)"/>
+                        </g>
+                        <path d="M0,-14 C6,-14 10,-6 4,-2 C8,2 4,10 -2,8 C-8,10 -10,2 -4,-2 C-8,-8 -4,-16 0,-14 Z" fill="#eab308"/>
+                        <circle cx="0" cy="0" r="4" fill="#b45309"/>
+                    </g>
+                    </g>
+
+                    <!-- Flor 3: Rosa amarilla (arriba derecha) -->
+                    <g transform="translate(330,130)">
+                    <g class="flower-item" data-id="3">
+                        <path d="M-14,26 Q0,14 14,26 Q0,38 -14,26 Z" fill="#059669" opacity="0.7"/>
+                        <g fill="url(#petalGold)">
+                            <path d="M0,0 C-15,-8 -20,-28 0,-42 C20,-28 15,-8 0,0 Z" transform="rotate(15)"/>
+                            <path d="M0,0 C-15,-8 -20,-28 0,-42 C20,-28 15,-8 0,0 Z" transform="rotate(75)"/>
+                            <path d="M0,0 C-15,-8 -20,-28 0,-42 C20,-28 15,-8 0,0 Z" transform="rotate(135)"/>
+                            <path d="M0,0 C-15,-8 -20,-28 0,-42 C20,-28 15,-8 0,0 Z" transform="rotate(195)"/>
+                            <path d="M0,0 C-15,-8 -20,-28 0,-42 C20,-28 15,-8 0,0 Z" transform="rotate(255)"/>
+                            <path d="M0,0 C-15,-8 -20,-28 0,-42 C20,-28 15,-8 0,0 Z" transform="rotate(315)"/>
+                        </g>
+                        <g fill="url(#petalYellow)">
+                            <path d="M0,0 C-10,-6 -13,-20 0,-30 C13,-20 10,-6 0,0 Z" transform="rotate(45)"/>
+                            <path d="M0,0 C-10,-6 -13,-20 0,-30 C13,-20 10,-6 0,0 Z" transform="rotate(105)"/>
+                            <path d="M0,0 C-10,-6 -13,-20 0,-30 C13,-20 10,-6 0,0 Z" transform="rotate(165)"/>
+                            <path d="M0,0 C-10,-6 -13,-20 0,-30 C13,-20 10,-6 0,0 Z" transform="rotate(225)"/>
+                            <path d="M0,0 C-10,-6 -13,-20 0,-30 C13,-20 10,-6 0,0 Z" transform="rotate(285)"/>
+                            <path d="M0,0 C-10,-6 -13,-20 0,-30 C13,-20 10,-6 0,0 Z" transform="rotate(345)"/>
+                        </g>
+                        <path d="M0,-14 C6,-14 10,-6 4,-2 C8,2 4,10 -2,8 C-8,10 -10,2 -4,-2 C-8,-8 -4,-16 0,-14 Z" fill="#eab308"/>
+                        <circle cx="0" cy="0" r="4" fill="#b45309"/>
+                    </g>
+                    </g>
+
+                    <!-- Flor 4: Margarita/gerbera (izquierda) -->
+                    <g transform="translate(130,230)">
+                    <g class="flower-item" data-id="4">
+                        <g fill="url(#petalYellow)">
+                            <path d="M0,-6 L4,-36 L0,-42 L-4,-36 Z" transform="rotate(0)"/>
+                            <path d="M0,-6 L4,-36 L0,-42 L-4,-36 Z" transform="rotate(22.5)"/>
+                            <path d="M0,-6 L4,-36 L0,-42 L-4,-36 Z" transform="rotate(45)"/>
+                            <path d="M0,-6 L4,-36 L0,-42 L-4,-36 Z" transform="rotate(67.5)"/>
+                            <path d="M0,-6 L4,-36 L0,-42 L-4,-36 Z" transform="rotate(90)"/>
+                            <path d="M0,-6 L4,-36 L0,-42 L-4,-36 Z" transform="rotate(112.5)"/>
+                            <path d="M0,-6 L4,-36 L0,-42 L-4,-36 Z" transform="rotate(135)"/>
+                            <path d="M0,-6 L4,-36 L0,-42 L-4,-36 Z" transform="rotate(157.5)"/>
+                            <path d="M0,-6 L4,-36 L0,-42 L-4,-36 Z" transform="rotate(180)"/>
+                            <path d="M0,-6 L4,-36 L0,-42 L-4,-36 Z" transform="rotate(202.5)"/>
+                            <path d="M0,-6 L4,-36 L0,-42 L-4,-36 Z" transform="rotate(225)"/>
+                            <path d="M0,-6 L4,-36 L0,-42 L-4,-36 Z" transform="rotate(247.5)"/>
+                            <path d="M0,-6 L4,-36 L0,-42 L-4,-36 Z" transform="rotate(270)"/>
+                            <path d="M0,-6 L4,-36 L0,-42 L-4,-36 Z" transform="rotate(292.5)"/>
+                            <path d="M0,-6 L4,-36 L0,-42 L-4,-36 Z" transform="rotate(315)"/>
+                            <path d="M0,-6 L4,-36 L0,-42 L-4,-36 Z" transform="rotate(337.5)"/>
+                        </g>
+                        <circle cx="0" cy="0" r="15" fill="url(#centerBrown)"/>
+                    </g>
+                    </g>
+
+                    <!-- Flor 5: Margarita/gerbera (derecha) -->
+                    <g transform="translate(370,230)">
+                    <g class="flower-item" data-id="5">
+                        <g fill="url(#petalYellow)">
+                            <path d="M0,-6 L4,-36 L0,-42 L-4,-36 Z" transform="rotate(10)"/>
+                            <path d="M0,-6 L4,-36 L0,-42 L-4,-36 Z" transform="rotate(32.5)"/>
+                            <path d="M0,-6 L4,-36 L0,-42 L-4,-36 Z" transform="rotate(55)"/>
+                            <path d="M0,-6 L4,-36 L0,-42 L-4,-36 Z" transform="rotate(77.5)"/>
+                            <path d="M0,-6 L4,-36 L0,-42 L-4,-36 Z" transform="rotate(100)"/>
+                            <path d="M0,-6 L4,-36 L0,-42 L-4,-36 Z" transform="rotate(122.5)"/>
+                            <path d="M0,-6 L4,-36 L0,-42 L-4,-36 Z" transform="rotate(145)"/>
+                            <path d="M0,-6 L4,-36 L0,-42 L-4,-36 Z" transform="rotate(167.5)"/>
+                            <path d="M0,-6 L4,-36 L0,-42 L-4,-36 Z" transform="rotate(190)"/>
+                            <path d="M0,-6 L4,-36 L0,-42 L-4,-36 Z" transform="rotate(212.5)"/>
+                            <path d="M0,-6 L4,-36 L0,-42 L-4,-36 Z" transform="rotate(235)"/>
+                            <path d="M0,-6 L4,-36 L0,-42 L-4,-36 Z" transform="rotate(257.5)"/>
+                            <path d="M0,-6 L4,-36 L0,-42 L-4,-36 Z" transform="rotate(280)"/>
+                            <path d="M0,-6 L4,-36 L0,-42 L-4,-36 Z" transform="rotate(302.5)"/>
+                            <path d="M0,-6 L4,-36 L0,-42 L-4,-36 Z" transform="rotate(325)"/>
+                            <path d="M0,-6 L4,-36 L0,-42 L-4,-36 Z" transform="rotate(347.5)"/>
+                        </g>
+                        <circle cx="0" cy="0" r="15" fill="url(#centerBrown)"/>
+                    </g>
+                    </g>
+
+                    <!-- Flor 6: Tulipán (izquierda abajo) -->
+                    <g transform="translate(200,280)">
+                    <g class="flower-item" data-id="6">
+                        <path d="M-9,16 Q0,26 9,16 Q0,22 -9,16 Z" fill="#059669"/>
+                        <path d="M0,-42 C11,-33 13,-12 8,10 C4,19 -4,19 -8,10 C-13,-12 -11,-33 0,-42 Z" fill="url(#tulipGrad)" opacity="0.85" transform="translate(0,-3)"/>
+                        <path d="M-5,-32 C-19,-25 -23,-4 -14,15 C-10,21 -2,19 -2,10 C-6,-6 -9,-21 -5,-32 Z" fill="url(#tulipGrad)"/>
+                        <path d="M5,-32 C19,-25 23,-4 14,15 C10,21 2,19 2,10 C6,-6 9,-21 5,-32 Z" fill="url(#tulipGrad)"/>
+                    </g>
+                    </g>
+
+                    <!-- Flor 7: Tulipán (derecha abajo) -->
+                    <g transform="translate(300,280)">
+                    <g class="flower-item" data-id="7">
+                        <path d="M-9,16 Q0,26 9,16 Q0,22 -9,16 Z" fill="#059669"/>
+                        <path d="M0,-42 C11,-33 13,-12 8,10 C4,19 -4,19 -8,10 C-13,-12 -11,-33 0,-42 Z" fill="url(#tulipGrad)" opacity="0.85" transform="translate(0,-3)"/>
+                        <path d="M-5,-32 C-19,-25 -23,-4 -14,15 C-10,21 -2,19 -2,10 C-6,-6 -9,-21 -5,-32 Z" fill="url(#tulipGrad)"/>
+                        <path d="M5,-32 C19,-25 23,-4 14,15 C10,21 2,19 2,10 C6,-6 9,-21 5,-32 Z" fill="url(#tulipGrad)"/>
+                    </g>
+                    </g>
+                </svg>
+            </div>
+
+            <!-- Unlock Ticket Action Button -->
+            <button id="goToTicketBtn" class="bg-gradient-to-r from-amber-400 via-yellow-500 to-pink-500 hover:from-amber-500 hover:to-pink-600 text-slate-900 font-extrabold px-8 py-3.5 rounded-full shadow-lg transform hover:scale-105 transition-all text-sm md:text-base flex items-center space-x-2 mx-auto">
+                <span>Planea Nuestra Cita Especial ✨</span>
+                <i class="fas fa-arrow-down animate-bounce"></i>
+            </button>
+        </section>
+
+        <!-- PASO 4: VALE Y PLANIFICADOR DE CITA -->
+        <section id="ticketPhase" class="hidden w-full glass-card rounded-3xl p-6 md:p-8 shadow-2xl border-2 border-amber-300 transition-all duration-700 mt-6">
+            <div class="text-center mb-6">
+                <span class="inline-block bg-pink-100 text-pink-700 text-xs px-4 py-1.5 rounded-full font-bold uppercase tracking-wider mb-2 border border-pink-300">
+                    Paso 3: Nuestra Próxima Cita 💌
+                </span>
+                <h3 class="text-2xl md:text-3xl font-bold text-slate-800 font-handwriting">
+                    Vale por un momento inolvidable juntos
+                </h3>
+                <p class="text-xs md:text-sm text-slate-600">
+                    Personaliza los detalles de nuestra cita para canjear tus flores amarillas:
+                </p>
+            </div>
+
+            <div class="bg-gradient-to-br from-amber-50 via-white to-pink-50 rounded-2xl p-5 md:p-7 border-2 border-dashed border-amber-400 shadow-md">
+                
+                <!-- Date Builder Inputs -->
+                <div class="space-y-5 mb-6">
+                    
+                    <!-- 1. Activity selector -->
+                    <div>
+                        <label class="block text-xs font-extrabold text-amber-900 uppercase tracking-wider mb-2">
+                            1. Plan / Actividad Favorita 🎬
+                        </label>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                            <button data-type="plan" data-val="Cena Romántica 🍷" class="option-btn p-3 rounded-xl border border-amber-200 bg-white hover:bg-amber-100 text-xs font-bold text-slate-700 text-center transition-all">
+                                🍷 Cena Romántica
+                            </button>
+                            <button data-type="plan" data-val="Pelis & Snacks 🍿" class="option-btn p-3 rounded-xl border border-amber-200 bg-white hover:bg-amber-100 text-xs font-bold text-slate-700 text-center transition-all">
+                                🍿 Pelis & Snacks
+                            </button>
+                            <button data-type="plan" data-val="Paseo & Helados 🍦" class="option-btn p-3 rounded-xl border border-amber-200 bg-white hover:bg-amber-100 text-xs font-bold text-slate-700 text-center transition-all">
+                                🍦 Paseo & Helados
+                            </button>
+                            <button data-type="plan" data-val="Atardecer & Picnic 🧺" class="option-btn p-3 rounded-xl border border-amber-200 bg-white hover:bg-amber-100 text-xs font-bold text-slate-700 text-center transition-all">
+                                🧺 Atardecer Picnic
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 2. Food selector -->
+                    <div>
+                        <label class="block text-xs font-extrabold text-amber-900 uppercase tracking-wider mb-2">
+                            2. Antojo o Comida Favorita 🍕
+                        </label>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                            <button data-type="food" data-val="Pizzas & Pastas 🍕" class="option-btn p-3 rounded-xl border border-amber-200 bg-white hover:bg-amber-100 text-xs font-bold text-slate-700 text-center transition-all">
+                                🍕 Pizzas / Pasta
+                            </button>
+                            <button data-type="food" data-val="Tacos & Antojitos 🌮" class="option-btn p-3 rounded-xl border border-amber-200 bg-white hover:bg-amber-100 text-xs font-bold text-slate-700 text-center transition-all">
+                                 fresas con cremita & Antojitos
+                            </button>
+                            <button data-type="food" data-val="Postre Especial & Café 🍰" class="option-btn p-3 rounded-xl border border-amber-200 bg-white hover:bg-amber-100 text-xs font-bold text-slate-700 text-center transition-all">
+                                🍰 Postre & Café
+                            </button>
+                            <button data-type="food" data-val="Comida Sorpresa 🎁" class="option-btn p-3 rounded-xl border border-amber-200 bg-white hover:bg-amber-100 text-xs font-bold text-slate-700 text-center transition-all">
+                                🎁 Lo que tú elijas
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 3. Date picker -->
+                    <div>
+                        <label class="block text-xs font-extrabold text-amber-900 uppercase tracking-wider mb-2">
+                            3. Fecha Propuesta 📅
+                        </label>
+                        <input type="date" id="datePicker" class="w-full p-3 rounded-xl border border-amber-300 bg-white text-slate-800 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-amber-400">
+                    </div>
+
+                </div>
+
+                <!-- Confirm Action -->
+                <button id="confirmTicketBtn" disabled class="w-full bg-slate-300 text-slate-500 font-extrabold py-3.5 rounded-full shadow transition-all duration-300 cursor-not-allowed text-sm md:text-base">
+                    Confirmar & Generar Ticket 💌
+                </button>
+
+                <!-- Generated Ticket Confirmation Card -->
+                <div id="ticketResultCard" class="hidden mt-6 p-6 bg-gradient-to-r from-amber-100 via-yellow-50 to-pink-100 border-2 border-amber-400 rounded-2xl shadow-xl text-center relative overflow-hidden">
+                    <div class="text-3xl mb-2">🎟️</div>
+                    <h4 class="text-2xl font-bold font-handwriting text-amber-900">Cupón de Cita Confirmado</h4>
+                    
+                    <div class="my-4 text-left bg-white/90 p-4 rounded-xl border border-amber-200 space-y-2 text-xs md:text-sm text-slate-700 font-semibold">
+                        <p>✨ <b>Plan:</b> <span id="summaryPlan" class="text-amber-700"></span></p>
+                        <p>🍕 <b>Antojo:</b> <span id="summaryFood" class="text-amber-700"></span></p>
+                        <p>📅 <b>Fecha:</b> <span id="summaryDate" class="text-amber-700"></span></p>
+                    </div>
+
+                    <a id="whatsappLink" target="_blank" class="inline-flex items-center space-x-2 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold px-6 py-3 rounded-full shadow-lg transition-all text-xs md:text-sm">
+                        <i class="fab fa-whatsapp text-lg"></i>
+                        <span>Enviar Confirmación a WhatsApp</span>
+                    </a>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- POEM POPUP MODAL -->
+    <div id="poemModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-md hidden flex justify-center items-center p-4 transition-opacity">
+        <div class="glass-modal w-full max-w-md rounded-3xl p-6 shadow-2xl relative transform transition-transform scale-95 duration-300 text-center">
+            
+            <button id="closeModalBtn" class="absolute top-4 right-4 w-9 h-9 bg-amber-100 hover:bg-amber-200 text-amber-800 rounded-full flex items-center justify-center font-bold text-sm transition-colors">
+                ✕
+            </button>
+
+            <div class="text-5xl mb-2" id="modalIcon">🌻</div>
+            <span id="modalFlowerTitle" class="inline-block bg-amber-100 text-amber-800 text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider mb-3 border border-amber-300">
+                Flor #1
+            </span>
+
+            <h3 id="modalPoemTitle" class="text-2xl font-bold text-amber-900 font-handwriting mb-4">
+                Título del Poema
+            </h3>
+
+            <div class="bg-amber-50/80 p-4 rounded-2xl border border-amber-200/80 shadow-inner mb-6">
+                <p id="modalPoemText" class="font-note text-2xl text-slate-800 leading-relaxed italic">
+                    Verso del poema aquí...
+                </p>
+            </div>
+
+            <button id="modalAcceptBtn" class="bg-gradient-to-r from-amber-400 to-amber-500 text-slate-900 font-extrabold px-8 py-2.5 rounded-full shadow hover:from-amber-500 hover:to-amber-600 transition-all text-sm">
+                Guardar en mi Corazón 💛
+            </button>
+        </div>
+    </div>
+
+    <footer class="relative z-10 w-full p-4 text-center text-xs text-amber-900/80 font-medium">
+        Hecho con ❤️ especialmente para ti • Flores Amarillas
+    </footer>
+
+    <script>
+        // Web Audio API Sound Synthesizer
+        class SoundEngine {
+            constructor() {
+                this.ctx = null;
+                this.bgmInterval = null;
+                this.isBgmPlaying = false;
+            }
+
+            init() {
+                if (!this.ctx) {
+                    const AudioContext = window.AudioContext || window.webkitAudioContext;
+                    this.ctx = new AudioContext();
+                }
+            }
+
+            playCatchSound() {
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(523.25, this.ctx.currentTime); 
+                osc.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 0.15); 
+
+                gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.15);
+            }
+
+            playSparkleSound() {
+                if (!this.ctx) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(659.25, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1318.51, this.ctx.currentTime + 0.25);
+
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.25);
+            }
+
+            playVictorySound() {
+                if (!this.ctx) return;
+                const notes = [523.25, 659.25, 783.99, 1046.50];
+                notes.forEach((freq, idx) => {
+                    setTimeout(() => {
+                        const osc = this.ctx.createOscillator();
+                        const gain = this.ctx.createGain();
+                        osc.type = 'sine';
+                        osc.frequency.value = freq;
+                        gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.4);
+                        osc.connect(gain);
+                        gain.connect(this.ctx.destination);
+                        osc.start();
+                        osc.stop(this.ctx.currentTime + 0.4);
+                    }, idx * 120);
+                });
+            }
+
+            toggleBGM(enable) {
+                this.init();
+                if (enable && !this.isBgmPlaying) {
+                    this.isBgmPlaying = true;
+                    let noteIdx = 0;
+                    const melody = [349.23, 392.00, 440.00, 523.25, 440.00, 392.00, 349.23, 261.63]; 
+
+                    this.bgmInterval = setInterval(() => {
+                        if (!this.isBgmPlaying) return;
+                        const osc = this.ctx.createOscillator();
+                        const gain = this.ctx.createGain();
+
+                        osc.type = 'sine';
+                        osc.frequency.setValueAtTime(melody[noteIdx], this.ctx.currentTime);
+
+                        gain.gain.setValueAtTime(0.05, this.ctx.currentTime);
+                        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.6);
+
+                        osc.connect(gain);
+                        gain.connect(this.ctx.destination);
+
+                        osc.start();
+                        osc.stop(this.ctx.currentTime + 0.6);
+
+                        noteIdx = (noteIdx + 1) % melody.length;
+                    }, 500);
+
+                } else if (!enable && this.isBgmPlaying) {
+                    this.isBgmPlaying = false;
+                    clearInterval(this.bgmInterval);
+                }
+            }
+        }
+
+        const sounds = new SoundEngine();
+
+        // 7 Deep Romantic Poems database
+        const poems = {
+            1: {
+                title: "Girasol de mi Vida",
+                icon: "🌻",
+                text: "Como el girasol busca incansable la luz del sol, mi corazón siempre encuentra su norte y su paz en tu mirada. Eres mi luz de cada día."
+            },
+            2: {
+                title: "Destello Amarillo",
+                icon: "🌹",
+                text: "Dicen que el amarillo es el color de la alegría y la calidez... no es coincidencia que me recuerde exactamente a la forma en que sonríes."
+            },
+            3: {
+                title: "Tu Dulce Amor",
+                icon: "🌹",
+                text: "Regalarte flores hoy es apenas un reflejo de lo bonito que florece mi mundo cada vez que me tomas de la mano."
+            },
+            4: {
+                title: "Coincidencia Hermosa",
+                icon: "🌼",
+                text: "Entre miles de historias y lugares, haber coincidido contigo es el regalo más luminoso que la vida me pudo dar."
+            },
+            5: {
+                title: "Abrazo Cálido",
+                icon: "🌼",
+                text: "Tus abrazos tienen la magia de calmar cualquier tormenta y llenar mis días de una primavera infinita."
+            },
+            6: {
+                title: "Promesa Eterna",
+                icon: "🌷",
+                text: "Estas flores no se marchitan, porque simbolizan un cariño sincero, constante y lleno de momentos felices por construir."
+            },
+            7: {
+                title: "Mi Lugar Favorito",
+                icon: "🌷",
+                text: "No importa el lugar ni la hora: donde sea que estés tú, ese siempre será mi rincón favorito del planeta."
+            }
+        };
+
+        // Create Petals background
+        function createPetals() {
+            const container = document.getElementById('petalsBg');
+            for (let i = 0; i < 18; i++) {
+                const petal = document.createElement('div');
+                petal.className = 'petal';
+                const size = Math.random() * 14 + 10;
+                petal.style.width = `${size}px`;
+                petal.style.height = `${size * 1.4}px`;
+                petal.style.left = `${Math.random() * 100}%`;
+                petal.style.animationDelay = `${Math.random() * 10}s`;
+                petal.style.animationDuration = `${Math.random() * 6 + 8}s`;
+                container.appendChild(petal);
+            }
+        }
+        createPetals();
+
+        // Game Setup variables
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const FLOWER_GOAL = 10;
+        let flowerCount = 0;
+        let sparkleCount = 0;
+        let isGameRunning = false;
+        let animationFrameId = null;
+
+        const basket = { x: 0, y: 0, width: 85, height: 42, speed: 8, dx: 0 };
+        let items = [];
+
+        function resizeCanvas() {
+            const container = canvas.parentElement;
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            basket.y = canvas.height - basket.height - 15;
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        function spawnItem() {
+            if (!isGameRunning) return;
+            const isSparkle = Math.random() < 0.25;
+            items.push({
+                x: Math.random() * (canvas.width - 35),
+                y: -40,
+                size: 30,
+                speed: Math.random() * 2 + 2.5,
+                type: isSparkle ? 'sparkle' : 'flower',
+                rotation: Math.random() * Math.PI,
+                rotSpeed: (Math.random() - 0.5) * 0.05
+            });
+
+            setTimeout(spawnItem, Math.random() * 800 + 600);
+        }
+
+        function drawBasket() {
+            ctx.save();
+            ctx.translate(basket.x, basket.y);
+            const grad = ctx.createLinearGradient(0, 0, 0, basket.height);
+            grad.addColorStop(0, '#f59e0b');
+            grad.addColorStop(1, '#b45309');
+            
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.roundRect(0, 0, basket.width, basket.height, [8, 8, 14, 14]);
+            ctx.fill();
+
+            ctx.fillStyle = '#ec4899';
+            ctx.fillRect(0, basket.height * 0.35, basket.width, 6);
+            ctx.restore();
+        }
+
+        function drawItem(item) {
+            ctx.save();
+            ctx.translate(item.x + item.size/2, item.y + item.size/2);
+            ctx.rotate(item.rotation);
+
+            if (item.type === 'flower') {
+                ctx.fillStyle = '#fbbf24';
+                for (let i = 0; i < 8; i++) {
+                    ctx.rotate((Math.PI * 2) / 8);
+                    ctx.beginPath();
+                    ctx.ellipse(0, 10, 4, 9, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.fillStyle = '#78350f';
+                ctx.beginPath();
+                ctx.arc(0, 0, 7, 0, Math.PI * 2);
+                ctx.fill();
+            } else {
+                ctx.fillStyle = '#f472b6';
+                ctx.beginPath();
+                ctx.arc(0, 0, 8, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.restore();
+        }
+
+        function updateGame() {
+            if (!isGameRunning) return;
+            basket.x += basket.dx;
+            if (basket.x < 0) basket.x = 0;
+            if (basket.x + basket.width > canvas.width) basket.x = canvas.width - basket.width;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBasket();
+
+            for (let i = items.length - 1; i >= 0; i--) {
+                const item = items[i];
+                item.y += item.speed;
+                item.rotation += item.rotSpeed;
+                drawItem(item);
+
+                if (
+                    item.y + item.size >= basket.y &&
+                    item.y <= basket.y + basket.height &&
+                    item.x + item.size >= basket.x &&
+                    item.x <= basket.x + basket.width
+                ) {
+                    if (item.type === 'flower') {
+                        flowerCount++;
+                        document.getElementById('flowerScore').innerText = flowerCount;
+                        sounds.playCatchSound();
+
+                        if (flowerCount >= FLOWER_GOAL) {
+                            triggerVictorySequence();
+                            return;
+                        }
+                    } else {
+                        sparkleCount += 10;
+                        document.getElementById('sparkleScore').innerText = sparkleCount;
+                        sounds.playSparkleSound();
+                    }
+                    items.splice(i, 1);
+                    continue;
+                }
+
+                if (item.y > canvas.height + 50) items.splice(i, 1);
+            }
+
+            animationFrameId = requestAnimationFrame(updateGame);
+        }
+
+        // Controls
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') basket.dx = -basket.speed;
+            if (e.key === 'ArrowRight') basket.dx = basket.speed;
+        });
+        window.addEventListener('keyup', () => basket.dx = 0);
+
+        function handlePointer(e) {
+            if (!isGameRunning) return;
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            basket.x = clientX - rect.left - basket.width / 2;
+        }
+        canvas.addEventListener('mousemove', handlePointer);
+        canvas.addEventListener('touchmove', handlePointer, { passive: true });
+
+        // Victory sequence
+        function triggerVictorySequence() {
+            isGameRunning = false;
+            cancelAnimationFrame(animationFrameId);
+            sounds.playVictorySound();
+
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+            }
+
+            setTimeout(() => {
+                document.getElementById('gamePhase').classList.add('hidden');
+                document.getElementById('revealPhase').classList.remove('hidden');
+                document.getElementById('revealPhase').scrollIntoView({ behavior: 'smooth' });
+            }, 600);
+        }
+
+        document.getElementById('startGameBtn').addEventListener('click', () => {
+            document.getElementById('gameOverlay').classList.add('hidden');
+            sounds.init();
+            resizeCanvas();
+            basket.x = canvas.width / 2 - basket.width / 2;
+            isGameRunning = true;
+            spawnItem();
+            updateGame();
+        });
+
+        // BGM Control
+        let bgmActive = false;
+        document.getElementById('bgmToggle').addEventListener('click', () => {
+            bgmActive = !bgmActive;
+            sounds.toggleBGM(bgmActive);
+            document.getElementById('bgmIcon').className = bgmActive ? "fas fa-volume-up text-pink-500 animate-pulse" : "fas fa-music text-amber-500";
+            document.getElementById('bgmText').innerText = bgmActive ? "Música: ON 🎶" : "Música: OFF";
+        });
+
+        // POEM MODAL INTERACTION
+        const unlockedSet = new Set();
+        const flowerItems = document.querySelectorAll('.flower-item');
+        const poemModal = document.getElementById('poemModal');
+
+        flowerItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const id = item.getAttribute('data-id');
+                const p = poems[id];
+                if (!p) return;
+
+                item.classList.add('unlocked');
+                unlockedSet.add(id);
+                sounds.playSparkleSound();
+
+                document.getElementById('modalIcon').innerText = p.icon;
+                document.getElementById('modalFlowerTitle').innerText = `Flor Amarilla #${id}`;
+                document.getElementById('modalPoemTitle').innerText = p.title;
+                document.getElementById('modalPoemText').innerText = `"${p.text}"`;
+
+                document.getElementById('unlockedCounterText').innerText = `${unlockedSet.size} de 7 poemas descubiertos`;
+
+                poemModal.classList.remove('hidden');
+            });
+        });
+
+        function closeModal() {
+            poemModal.classList.add('hidden');
+        }
+        document.getElementById('closeModalBtn').addEventListener('click', closeModal);
+        document.getElementById('modalAcceptBtn').addEventListener('click', closeModal);
+
+        // Go to Ticket Phase
+        document.getElementById('goToTicketBtn').addEventListener('click', () => {
+            document.getElementById('ticketPhase').classList.remove('hidden');
+            document.getElementById('ticketPhase').scrollIntoView({ behavior: 'smooth' });
+        });
+
+        // TICKET BUILDER SELECTION
+        let selectedPlan = null;
+        let selectedFood = null;
+
+        const optionBtns = document.querySelectorAll('.option-btn');
+        const confirmTicketBtn = document.getElementById('confirmTicketBtn');
+
+        optionBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const type = btn.getAttribute('data-type');
+                const val = btn.getAttribute('data-val');
+
+                // Clear sibling selections
+                document.querySelectorAll(`.option-btn[data-type="${type}"]`).forEach(b => {
+                    b.classList.remove('border-amber-500', 'bg-amber-200', 'shadow-inner');
+                });
+
+                btn.classList.add('border-amber-500', 'bg-amber-200', 'shadow-inner');
+
+                if (type === 'plan') selectedPlan = val;
+                if (type === 'food') selectedFood = val;
+
+                checkTicketValid();
+            });
+        });
+
+        document.getElementById('datePicker').addEventListener('change', checkTicketValid);
+
+        function checkTicketValid() {
+            const dateVal = document.getElementById('datePicker').value;
+            if (selectedPlan && selectedFood && dateVal) {
+                confirmTicketBtn.disabled = false;
+                confirmTicketBtn.className = "w-full bg-gradient-to-r from-pink-500 to-amber-500 hover:from-pink-600 hover:to-amber-600 text-white font-extrabold py-3.5 rounded-full shadow-lg transform hover:scale-102 transition-all cursor-pointer text-sm md:text-base";
+            }
+        }
+
+        // CONFIRM TICKET & WHATSAPP GENERATION
+        confirmTicketBtn.addEventListener('click', () => {
+            const dateVal = document.getElementById('datePicker').value;
+            
+            document.getElementById('summaryPlan').innerText = selectedPlan;
+            document.getElementById('summaryFood').innerText = selectedFood;
+            document.getElementById('summaryDate').innerText = dateVal;
+
+            const message = `¡Hola mi amor! 💕 Acepto encantada mis Flores Amarillas 🌻 y confirmo nuestra próxima cita especial:\n\n✨ Plan: ${selectedPlan}\n🍕 Antojo: ${selectedFood}\n📅 Fecha: ${dateVal}\n\n¡Espero con ansias nuestro momento juntos! 🥰`;
+            const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`;
+
+            document.getElementById('whatsappLink').href = waUrl;
+            document.getElementById('ticketResultCard').classList.remove('hidden');
+
+            sounds.playSparkleSound();
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 60, spread: 80, origin: { y: 0.8 } });
+            }
+        });
+    </script>
+</body>
+</html>
